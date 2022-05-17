@@ -1,7 +1,8 @@
 import os
 import sys
 import cgi
-import smiler
+import html as html_module
+from . import smiler
 from .config import config
 import javaobj
 import pickle
@@ -57,7 +58,7 @@ def save_xml_report(output_dir, smalitree, app_name, granularity):
     path = os.path.join(output_dir, 'acvtool-report.xml')
 
     with open(path, 'w') as f:
-        f.write(xml)
+        f.write(xml.decode('utf-8'))
 
 def save_html_report(output_dir, smalitree, app_name, granularity):
     templates = PageTemplateLoader(config.templates_path)
@@ -238,7 +239,7 @@ def save_class(cl, class_template, output_dir, app_name, granularity):
             p.reload()
             ins_buf[0:0] = [span_tab_tag(d) for d in p.buf]
         ins_buf.insert(0, span_tab_tag(m.get_registers_line()))
-        html_method_line = span_tag(cgi.escape(m.get_method_line()), COV_CLASS) if m.called else m.get_method_line()
+        html_method_line = span_tag(html_module.escape(m.get_method_line()), COV_CLASS) if m.called else m.get_method_line()
         ins_buf.insert(0, html_method_line)
         ins_buf.append(LI_TAG(".end method"))
         buf.append(LI_TAG(''))

@@ -1,10 +1,10 @@
 [[package]]
 name = "chameleon"
-version = "3.1"
+version = "3.10.0"
 description = "Fast HTML/XML Template Compiler."
 category = "main"
 optional = false
-python-versions = "*"
+python-versions = ">=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*"
 
 [[package]]
 name = "javaobj-py3"
@@ -47,11 +47,11 @@ python-versions = "*"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "ee29a4f2d8737bb624d818bfe0bae07e5b4745d0b6a8e7b677289856a7e8f012"
+content-hash = "7bbf35cc470bbee40c6a44f48ea8e6b35263a542755cdd8f403686bc860e536e"
 
 [metadata.files]
 chameleon = [
-    {file = "Chameleon-3.1.tar.gz", hash = "sha256:caa3b79eed61038582a7bbb35bc67d2085d3d2497a94f890228c2937d87dc167"},
+    {file = "Chameleon-3.10.0.tar.gz", hash = "sha256:7a897298d156c3008812ffcbdc40997f74724d12cffd6f304578dc26ace5ff5f"},
 ]
 javaobj-py3 = [
     {file = "javaobj-py3-0.4.3.tar.gz", hash = "sha256:38f74db3a57e9998a9774e3614afb95cb396f139f29b3fdb130c5af554435259"},
