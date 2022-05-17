@@ -130,7 +130,7 @@ def start_instrumenting(package, release_thread=False, onstop=None, timeout=None
 def coverage_is_locked(package_name):
     cmd = "{} shell \"test -e /mnt/sdcard/{}.lock > /dev/null 2>&1 && echo \'1\' || echo \'0\'\"".format(config.adb_path, package_name)
     logging.debug('Command to check lock file:' + cmd)
-    locked = subprocess.check_output(cmd, shell=True).replace("\n","").replace("\r", "")
+    locked = subprocess.check_output(cmd, shell=True).decode('utf-8').replace("\n","").replace("\r", "")
     return locked == '1'
 
 def stop_instrumenting(package_name, timeout=None):
