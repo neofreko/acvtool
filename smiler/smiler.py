@@ -6,15 +6,15 @@ import threading
 import signal
 import logging
 import time
-from config import config
-from granularity import Granularity
-from instrumenting import manifest_instrumenter
-from libs.libs import Libs
-from instrumenting.apkil.smalitree import SmaliTree
-from instrumenting.apktool_interface import ApktoolInterface
-from instrumenting.smali_instrumenter import Instrumenter
-from instrumenting.utils import timeit
-from instrumenting.utils import Utils
+from .config import config
+from .granularity import Granularity
+from .instrumenting import manifest_instrumenter
+from .libs.libs import Libs
+from .instrumenting.apkil.smalitree import SmaliTree
+from .instrumenting.apktool_interface import ApktoolInterface
+from .instrumenting.smali_instrumenter import Instrumenter
+from .instrumenting.utils import timeit
+from .instrumenting.utils import Utils
 
 apk_info_pattern = re.compile("package: name='(?P<package>.*?)'")
 
@@ -46,7 +46,7 @@ def request_pipe(cmd):
         raise Exception("----------------------------------------------------\n\
 Out: %s\nError: %s" % (out, err))
 
-    return res
+    return res.decode('utf-8')
 
 def get_apk_properties(path):
     info_cmd = "%s dump badging %s" % (config.aapt_path, path)
@@ -171,6 +171,7 @@ def instrument_apk(apk_path, result_dir, dbg_start=None, dbg_end=None, installat
     logging.info("decompiled {0}".format(package))
 
     instrument_manifest(manifest_path)
+    # TODO: add multidex support
     smali_code_path = get_path_to_smali_code(unpacked_data_path)
     pickle_path = get_pickle_path(apk_path, result_dir)
     instrument_smali_code(smali_code_path, pickle_path, package, granularity, dbg_start, dbg_end, mem_stats)
@@ -179,11 +180,15 @@ def instrument_apk(apk_path, result_dir, dbg_start=None, dbg_end=None, installat
     instrumented_package_path = get_path_to_instrumented_package(apk_path, result_dir)
     remove_if_exits(instrumented_package_path)
     build_apk(apktool, unpacked_data_path, instrumented_package_path)
+    # assert file created
+    assert os.path.isfile(instrumented_package_path)
     Utils.rm_tree(unpacked_data_path)
     logging.info("built")
 
     instrumented_apk_path = get_path_to_insrumented_apk(instrumented_package_path, result_dir)
     sign_align_apk(instrumented_package_path, instrumented_apk_path)
+    # assert file created
+    assert os.path.isfile(instrumented_apk_path)
 
     logging.info("apk instrumented: {0}".format(instrumented_apk_path))
     logging.info("package name: {0}".format(package))
@@ -241,6 +246,12 @@ def get_path_to_smali_code(unpacked_data_path):
     pth = os.path.join(unpacked_data_path, "smali")
     return pth
 
+def get_paths_to_smali_code(unpacked_data_path):
+    # grab all smaliXXX directories
+    smali_dirs = [d for d in os.listdir(unpacked_data_path) if d.startswith("smali")]
+    # return path prefixed by unpacked_data_path
+    return [os.path.join(unpacked_data_path, d) for d in smali_dirs]
+
 def get_path_to_instrumentation_metadata_dir(result_dir):
     pth = os.path.join(result_dir, "metadata")
     return pth
@@ -266,12 +277,14 @@ def instrument_manifest(manifest_path):
 
 @timeit
 def instrument_smali_code(input_smali_dir, pickle_path, package, granularity, dbg_start=None, dbg_end=None, mem_stats=None):
+    logging.info("instrumenting smali code at {0}".format(input_smali_dir))
     smali_tree = SmaliTree(input_smali_dir)
     smali_instrumenter = Instrumenter(smali_tree, granularity, package, dbg_start, dbg_end, mem_stats)
     smali_instrumenter.save_instrumented_smali(input_smali_dir)
     smali_instrumenter.save_pickle(pickle_path)
 
 def sign_align_apk(instrumented_package_path, output_apk):
+    logging.info("signing and aligning apk {0}".format(instrumented_package_path))
     aligned_apk_path = instrumented_package_path.replace('.apk', '_signed_tmp.apk')
     align_cmd = '"{}" -f 4 "{}" "{}"'.format(config.zipalign, instrumented_package_path, aligned_apk_path)
     request_pipe(align_cmd)

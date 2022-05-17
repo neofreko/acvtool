@@ -3,12 +3,12 @@ import re
 import sys
 import shutil
 import logging
-import cPickle as pickle
-from apkil.smalitree import SmaliTree
-from apkil.insnnode import InsnNode
+import pickle
+from .apkil.smalitree import SmaliTree
+from .apkil.insnnode import InsnNode
 from pkg_resources import resource_filename
-from utils import Utils
-from acv_reporter import AcvReporter
+from .utils import Utils
+from .acv_reporter import AcvReporter
 from ..granularity import Granularity
 
 class Instrumenter(object):
@@ -158,9 +158,7 @@ class Instrumenter(object):
         for i in range(SmaliHelper.len_paras(method.paras) + self_p0):
             reg_map.append(('p%d' % i, 'v%d' % (method.registers + i)))
 
-        reg_map = dict(reg_map)
-
-        return reg_map
+        return dict(reg_map)
 
     def is_method_static(self, method):
         if 'static' in method.access:
@@ -300,7 +298,8 @@ class Instrumenter(object):
         if not is_static:
             move = "move-object/16 %s, %s" % (reg_map['p0'], 'p0')
             insns.append(move)
-        sorted_keys = sorted(reg_map.iterkeys(), key=lambda x: int(x[1:]))
+
+        sorted_keys = sorted(reg_map.keys())
         # p0 register is a link for self object if method is not static
         is_self_object = 1
         if is_static:
@@ -312,7 +311,7 @@ class Instrumenter(object):
         for i in range(len(method.paras)):
             p = sorted_keys[reg_index]
             v = reg_map[p]
-            if method.paras[i].basic and method.paras[i].dim is 0:
+            if method.paras[i].basic and method.paras[i].dim == 0:
                 if method.paras[i].words == 2:
                     move = "move-wide/16 %s, %s" % (v, p)
                     reg_index += 1

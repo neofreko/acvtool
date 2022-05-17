@@ -1,8 +1,8 @@
 import os
 
 from smiler.config import config
-from general_exceptions import MsgException
-from android_manifest import AndroidManifest, \
+from .general_exceptions import MsgException
+from .android_manifest import AndroidManifest, \
     ManifestAlreadyInstrumentedException
 import shutil
 

@@ -1,5 +1,5 @@
 import os
-import commander
+from .import commander
 
 
 class ApktoolInterface:

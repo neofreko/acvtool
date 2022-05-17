@@ -1,9 +1,9 @@
-import methodnode
+from . import methodnode
 import sys
 import os
-from logger import log
-from fieldnode import FieldNode
-from codeblocknode import CodeBlockNode
+from .logger import log
+from .fieldnode import FieldNode
+from .codeblocknode import CodeBlockNode
 
 class ClassNode(object):
 
